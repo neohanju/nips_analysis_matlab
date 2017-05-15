@@ -3,10 +3,10 @@ clear;
 dataset = 'avenue';
 video_train = 1:16;
 video_test = 1:21;
-model = 'VAE-NARROW';
-dataset_path = '../../data';
-train_path = fullfile(dataset_path, 'avenue_train');
-test_path = fullfile(dataset_path, 'avenue_test');
+model = 'AE-LTR';
+dataset_path = '/home/mlpa/Workspace/dataset/nips';
+train_path = '../../data/avenue_train';
+test_path = '../../data/avenue_test';
 input_channels = 10;
 sample_stride = 5;
 
@@ -75,8 +75,7 @@ test_is_mse_high = false(0);
 test_is_mse_low = false(0);
 for video_id = video_test
     
-    counter = counter + 1;labels_test(is_positive) = 2;
-
+    counter = counter + 1;
     fprintf('[%02d/%02d] %s video %02d', ...
         counter, num_videos, dataset, video_id);    
     
@@ -195,7 +194,8 @@ legend('train', 'normal', 'abnormal', 'train mse low', 'train mse high', ...
     'test mse low', 'test mse high');
 hold off;
 
-tracking_table = [video_ids, sample_ids];
+% show sample example
+% ShowSample(1881, dataset, dataset_path, tracking_table);
 
 %()()
 %('')HAANJU.YOO
