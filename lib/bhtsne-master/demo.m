@@ -4,8 +4,9 @@ dataset = 'avenue';
 video_train = 1:16;
 video_test = 1:21;
 model = 'VAE-NARROW';
-train_path = '../../data/avenue_train';
-test_path = '../../data/avenue_test';
+dataset_path = '../../data';
+train_path = fullfile(dataset_path, 'avenue_train');
+test_path = fullfile(dataset_path, 'avenue_test');
 input_channels = 10;
 sample_stride = 5;
 
@@ -32,6 +33,7 @@ is_mse_low = false(0);
 video_ids = [];
 sample_ids = [];
 num_videos = length(video_train);
+tracking_table = [];
 counter = 0;
 for video_id = video_train
     counter = counter + 1;
@@ -47,8 +49,8 @@ for video_id = video_train
     z_mse = [z_mse; z_mse_cur];
     is_mse_high = [is_mse_high; is_mse_high_cur];
     is_mse_low = [is_mse_low; is_mse_low_cur];   
-    video_ids = [video_ids; video_ids_cur];
-    sample_ids = [sample_ids, sample_ids_cur];    
+    tracking_table = [tracking_table; ...
+        [video_ids_cur, sample_ids_cur, zeros(length(video_ids_cur), 1)]];
     disp('  Load data is done');
 end
 labels = zeros(length(is_mse_high), 1);
@@ -71,11 +73,10 @@ z_test = [];
 z_test_mse = [];
 test_is_mse_high = false(0);
 test_is_mse_low = false(0);
-video_ids_test = [];
-sample_ids_test = [];
 for video_id = video_test
     
-    counter = counter + 1;
+    counter = counter + 1;labels_test(is_positive) = 2;
+
     fprintf('[%02d/%02d] %s video %02d', ...
         counter, num_videos, dataset, video_id);    
     
@@ -87,8 +88,8 @@ for video_id = video_test
     z_test_mse = [z_test_mse; z_mse_cur];
     test_is_mse_high = [test_is_mse_high; is_mse_high_cur];
     test_is_mse_low = [test_is_mse_low; is_mse_low_cur];
-    video_ids_test = [video_ids_test; video_ids_cur];
-    sample_ids_test = [sample_ids_test, sample_ids_cur];    
+    tracking_table = [tracking_table; ...
+        [video_ids_cur, sample_ids_cur, ones(length(video_ids_cur), 1)]];    
     disp('  Load data is done');
 
     % pos/neg
@@ -182,7 +183,7 @@ grid on;
 hold on;
 % 0=train / 1=test_noraml / 2=test_abnormal / 3=low_mse / 4=high_mse
 if numDims == 2
-    gscatter(map(:,1), map(:,2), labels, 'kbmcryg', 'o+x^svd', 5);
+    gscatter(map(:,1), map(:,2), labels, 'kbmcryg', '+ox^svd', 5);
 elseif numDims == 3
     cmap = colormap('parula');
     scatter3(map(labels == 0,1), map(labels == 0,2), map(labels == 0,3), 20, cmap(1,:));
@@ -193,6 +194,8 @@ title(sprintf('PCA=%d,perplexity=%d,theta=%f', pcaDims, perplexity, theta));
 legend('train', 'normal', 'abnormal', 'train mse low', 'train mse high', ...
     'test mse low', 'test mse high');
 hold off;
+
+tracking_table = [video_ids, sample_ids];
 
 %()()
 %('')HAANJU.YOO

@@ -30,7 +30,7 @@ is_mse_high(is_mse_low) = false;  % high priority at low mse
 
 % sample tracking    
 video_ids = video_id*ones(length(selected_samples), 1);
-sample_ids = selected_samples;
+sample_ids = selected_samples';
 
 
 end
