@@ -197,5 +197,20 @@ hold off;
 % show sample example
 % ShowSample(1881, dataset, dataset_path, tracking_table);
 
+% scatter with MSE
+% Make a color index for the ozone levels
+nc = 16;
+offset = 1;
+c = response - min(response);
+c = round((nc-1-2*offset)*c/max(c)+1+offset);
+
+z_train_mse = z_mse;
+z_mse = [z_train_mse; z_test_mse];
+z_mes_ = (z_mse - min(z_mse))/max(z_mse);
+num_colors = 
+color_idx = 
+
+
+
 %()()
 %('')HAANJU.YOO
