@@ -159,6 +159,7 @@ fprintf('Removing %.2f %% of test samples as transition samples\n', ...
     remove_ratio);
 
 z_test(is_transition,:) = [];
+z_test_mse(is_transition) = [];
 is_positive(is_transition) = [];
 
 
@@ -198,18 +199,47 @@ hold off;
 % ShowSample(1881, dataset, dataset_path, tracking_table);
 
 % scatter with MSE
-% Make a color index for the ozone levels
-nc = 16;
-offset = 1;
-c = response - min(response);
-c = round((nc-1-2*offset)*c/max(c)+1+offset);
+num_color = 300;
+cmap = colormap(jet(num_color));
 
 z_train_mse = z_mse;
 z_mse = [z_train_mse; z_test_mse];
-z_mes_ = (z_mse - min(z_mse))/max(z_mse);
-num_colors = 
-color_idx = 
+z_mes_ = (z_mse - min(z_mse))/(max(z_mse) - min(z_mse) + 1);
+color_idx = floor(z_mes_ * num_color + 1);
 
+train_sample_idx = 1:length(z_train_mse);
+test_sample_idx = length(z_train_mse):length(z_mse);
+abnormal_sample_idx = test_sample_idx(is_positive);
+normal_sample_idx = test_sample_idx(~is_positive);
+
+figure(20); clf;
+hold on;
+target_idx = train_sample_idx;
+scatter(map(target_idx,1), map(target_idx,2), 20, ...
+    cmap(color_idx(target_idx),:), 'filled', ...
+    'MarkerEdgeColor', [0 0 1], ...
+    'LineWidth', 1);
+target_idx = normal_sample_idx;
+scatter(map(target_idx,1), map(target_idx,2), 20, ...
+    cmap(color_idx(target_idx),:), 'filled', ...
+    'MarkerEdgeColor', [0 0.7 0], ...
+    'LineWidth', 1);
+target_idx = abnormal_sample_idx;
+scatter(map(target_idx,1), map(target_idx,2), 20, ...
+    cmap(color_idx(target_idx),:), 'filled', ...
+    'MarkerEdgeColor', [1 0 0], ...
+    'LineWidth', 1);
+hold off;
+
+num_tick_labels = 11;
+z_mse_range = max(z_mse) - min(z_mse);
+colorbar_label = cell(length(z_mse_tick_idx), 1);
+cur_tick_mse = min(z_mse);
+for i = 1:num_tick_labels    
+    colorbar_label{i} = sprintf('%.2f', cur_tick_mse);
+    cur_tick_mse = cur_tick_mse + round(z_mse_range/num_tick_labels);
+end
+colorbar('Location', 'EastOutside', 'YTickLabel', colorbar_label)
 
 
 %()()
