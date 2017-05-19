@@ -3,20 +3,20 @@ clear;
 dataset = 'avenue';
 video_train = 1:16;
 video_test = 1:21;
-model = 'AE-LTR';
-dataset_path = '/home/mlpa/Workspace/dataset/nips';
+model = 'AE-BN';
+dataset_path = '/mnt/fastdataset/Datasets';
 train_path = '../../data/avenue_train';
 test_path = '../../data/avenue_test';
 input_channels = 10;
 sample_stride = 5;
 
 % t-SNE
-numDims = 2; pcaDims = 50; perplexity = 50; theta = 0.7; alg = 'svd';
+numDims = 2; pcaDims = 50; perplexity = 50; theta = 0.3; alg = 'svd';
 
 % sample selection
 tr_interval_half = 1;  % transition interval
-sample_interval_train = 10;
-sample_interval_test = 2;
+sample_interval_train = 1;
+sample_interval_test = 1;
 mse_high_rank = 1;
 mse_low_rank = 1;
 % =========================================================================
@@ -26,8 +26,8 @@ mse_low_rank = 1;
 % data preparing
 %--------------------------------------
 disp('Preparing train data');
-z_data = [];
-z_mse = [];
+z_train = [];
+z_train_mse = [];
 is_mse_high = false(0);
 is_mse_low = false(0);
 video_ids = [];
@@ -45,8 +45,8 @@ for video_id = video_train
         is_mse_low_cur] = ReadSamples(train_path, dataset, model, ...
         video_id, sample_interval_train, mse_high_rank, mse_low_rank);
 
-    z_data = [z_data; z_cur];
-    z_mse = [z_mse; z_mse_cur];
+    z_train = [z_train; z_cur];
+    z_train_mse = [z_train_mse; z_mse_cur];
     is_mse_high = [is_mse_high; is_mse_high_cur];
     is_mse_low = [is_mse_low; is_mse_low_cur];   
     tracking_table = [tracking_table; ...
@@ -166,7 +166,7 @@ is_positive(is_transition) = [];
 %--------------------------------------
 % t-SNE
 %--------------------------------------
-z_data = [z_data; z_test];
+z_data = [z_train; z_test];
 
 labels_test = ones(length(is_positive), 1);
 labels_test(is_positive) = 2;
@@ -249,9 +249,17 @@ colorbar_label = cell(length(num_tick_labels), 1);
 cur_tick_mse = min(z_mse);
 for i = 1:num_tick_labels    
     colorbar_label{i} = sprintf('%.2f', cur_tick_mse);
-    cur_tick_mse = cur_tick_mse + round(z_mse_range/num_tick_labels);
+    cur_tick_mse = cur_tick_mse + round(z_mse_range/num_tick_labels);a
 end
 colorbar('Location', 'EastOutside', 'YTickLabel', colorbar_label)
+
+
+%--------------------------------------
+% Entropy
+%--------------------------------------
+mse_sum = sum(z_train_mse);
+P_z_train_mse = z_train_mse / mse_sum;
+H_train = sum(P_z_train_mse .* log(P_z_train_mse));
 
 
 %()()

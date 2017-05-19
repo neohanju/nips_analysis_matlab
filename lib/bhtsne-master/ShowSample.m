@@ -11,12 +11,26 @@ if tracking_table(data_index,3) == 1
     idx_first_image = test_sample_stride*(tracking_table(data_index,2)+1);
     idx_middle_image = idx_first_image + 5; 
     idx_last_image = idx_first_image + 10;
+    
+    sec = tracking_table(data_index,2) * test_sample_stride / 25;
+    min = round(sec / 60);
+    sec = round(rem(sec, 60));
+    fprintf('test video %d, %d min %02d sec\n', ...
+        tracking_table(data_index,1), min, sec);
+    
 elseif tracking_table(data_index,3) == 0
     video_type = 'training_videos';
     video_name = sprintf('%02d',tracking_table(data_index,1));
     idx_first_image = train_sample_stride*(tracking_table(data_index,2)+1);
     idx_middle_image = idx_first_image + 5; 
     idx_last_image = idx_first_image + 10;
+    
+    sec = tracking_table(data_index,2) * train_sample_stride / 25;
+    min = round(sec / 60);
+    sec = round(rem(sec, 60));
+    fprintf('train video %d, %d min %02d sec\n', ...
+        tracking_table(data_index,2), min, sec);
+    
 end
 image_path = fullfile(path,dataset,video_type,video_name);
 
